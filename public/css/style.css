@@ -62,9 +62,21 @@ body {
     padding: 12px;
     background: #fafafa;
 }
+
+/* Style for the select box */
+.model-select {
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    outline: none;
+    cursor: pointer;
+}
+
 .chat-input input[type="file"] {
     flex: 1;
 }
+
 .chat-input button {
     cursor: pointer;
     padding: 8px 16px;

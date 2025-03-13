@@ -1,6 +1,6 @@
-// Add click handler for 'Upload' button
 document.getElementById("uploadBtn").addEventListener("click", () => {
     const fileInput = document.getElementById("fileInput");
+    const selectBox = document.getElementById("modelSelect");
     const file = fileInput.files[0];
 
     if (!file) {
@@ -8,12 +8,19 @@ document.getElementById("uploadBtn").addEventListener("click", () => {
         return;
     }
 
+    // Determine the selected model (e.g. "llama", "chatgpt-o1", "deepseek")
+    const selectedModel = selectBox.value;
+    if (!selectedModel) {
+        alert("Please select a model");
+        return;
+    }
+
     // Prepare multipart/form-data
     const formData = new FormData();
     formData.append("file", file);
 
-    // POST request to the Go server
-    fetch("http://localhost:8099/api/app/upload", {
+    // Send to /upload/<selectedModel>, e.g. /upload/llama
+    fetch(`http://localhost:8080/api/app/upload/${selectedModel}`, {
         method: "POST",
         body: formData,
     })

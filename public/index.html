@@ -15,13 +15,27 @@
     <!-- Chat Messages -->
     <div class="chat-content" id="chat-content">
         <div class="chat-message system-message">
-            <p>Welcome! Please upload your file (apk, ipa, or zip).</p>
+            <p>Welcome! Please upload your file (apk, ipa, or zip) and select the model.</p>
         </div>
     </div>
 
     <!-- Chat Input Bar -->
     <div class="chat-input">
-        <input type="file" id="fileInput" accept=".apk,.ipa,.zip" />
+        <!-- Model Select Box -->
+        <select id="modelSelect" class="model-select">
+            <option value="llama">Llama</option>
+            <option value="chatgpt-o1">ChatGPT o1</option>
+            <option value="deepseek">DeepSeek</option>
+        </select>
+
+        <!-- File Input -->
+        <input
+                type="file"
+                id="fileInput"
+                accept=".apk,.ipa,.zip"
+        />
+
+        <!-- Upload Button -->
         <button id="uploadBtn">Upload</button>
     </div>
 </div>

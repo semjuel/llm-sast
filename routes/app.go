@@ -6,5 +6,5 @@ import (
 )
 
 func app(r *gin.Engine) {
-	r.POST("/api/app/upload", handlers.Upload)
+	r.POST("/api/app/upload/:model", handlers.Upload)
 }

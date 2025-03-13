@@ -8,6 +8,8 @@ import (
 )
 
 func Upload(c *gin.Context) {
+	model := c.Param("model") // e.g. "llama", "chatgpt-o1", "deepseek"
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -45,5 +47,6 @@ func Upload(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "File uploaded successfully",
 		"filename": file.Filename,
+		"model":    model,
 	})
 }
