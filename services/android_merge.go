@@ -4,11 +4,9 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 )
 
 func unzipAPK(apkBytes []byte, dest string) error {
@@ -19,51 +17,7 @@ func unzipAPK(apkBytes []byte, dest string) error {
 	}
 
 	// Iterate through each file/dir in the archive
-	for _, f := range r.File {
-		// Build the full path for the output
-		fpath := filepath.Join(dest, f.Name)
-
-		// Check if file paths are valid (avoid zip-slip)
-		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return fmt.Errorf("illegal file path: %s", fpath)
-		}
-
-		if f.FileInfo().IsDir() {
-			// Create directories
-			if err := os.MkdirAll(fpath, f.Mode()); err != nil {
-				return fmt.Errorf("failed to create directory %s: %w", fpath, err)
-			}
-			continue
-		}
-
-		// Make sure parent directories exist
-		if err := os.MkdirAll(filepath.Dir(fpath), 0755); err != nil {
-			return fmt.Errorf("failed to create directory for file %s: %w", fpath, err)
-		}
-
-		// Open the file inside the ZIP
-		rc, err := f.Open()
-		if err != nil {
-			return fmt.Errorf("failed to open zip entry %s: %w", fpath, err)
-		}
-		defer rc.Close()
-
-		// Create a file on the disk
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			return fmt.Errorf("failed to create file %s: %w", fpath, err)
-		}
-
-		// Copy file contents
-		if _, err := io.Copy(outFile, rc); err != nil {
-			outFile.Close()
-			return fmt.Errorf("failed to copy contents to %s: %w", fpath, err)
-		}
-
-		outFile.Close()
-	}
-
-	return nil
+	return unzip(r, dest)
 }
 
 func mergeApks(src string) ([]byte, error) {

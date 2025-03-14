@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"github.com/semjuel/llm-sast/llms"
 	"os"
 	"path/filepath"
@@ -31,7 +32,8 @@ func (a androidAnalyzer) Analyze(src string) (string, error) {
 		}
 	}
 
-	err = unzipAPK(b, "uploads")
+	dest := fmt.Sprintf("uploads/%s", hashString(src))
+	err = unzipAPK(b, dest)
 	if err != nil {
 		return "", err
 	}
