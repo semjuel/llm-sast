@@ -20,7 +20,7 @@ document.getElementById("uploadBtn").addEventListener("click", () => {
     formData.append("file", file);
 
     // Send to /upload/<selectedModel>, e.g. /upload/llama
-    fetch(`http://localhost:8080/api/app/upload/${selectedModel}`, {
+    fetch(`http://localhost:8099/api/app/upload/${selectedModel}`, {
         method: "POST",
         body: formData,
     })
@@ -29,7 +29,7 @@ document.getElementById("uploadBtn").addEventListener("click", () => {
             if (data.error) {
                 addMessage("system", data.error);
             } else {
-                addMessage("user", `File uploaded successfully: ${data.filename}`);
+                addMessage("user", `File uploaded successfully: ${data.filename} \n SAST result ${data.result}`);
             }
         })
         .catch((err) => {
