@@ -40,6 +40,8 @@ func (a androidAnalyzer) Analyze(src string) ([]models.URLFilteredResponse, erro
 	urlsData := android.ExtractFromSource(dest, []string{})
 	unique := uniqueByFilepath(urlsData)
 	for _, urlRow := range unique {
+		log.Println(urlRow.Filepath)
+		log.Println("---START sending requests---")
 		// Send request to the LLM and analyze the source
 		res, err := a.llm.AnalyzeUrl(urlRow)
 		if err != nil {
@@ -47,9 +49,12 @@ func (a androidAnalyzer) Analyze(src string) ([]models.URLFilteredResponse, erro
 			continue
 		}
 
+		log.Println("---END sending requests---")
 		response = append(response, res)
 	}
-	log.Println(urlsData)
+
+	log.Println("Responses")
+	log.Println(response)
 
 	return response, nil
 }
