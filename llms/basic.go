@@ -29,7 +29,7 @@ func NewLLMModel(
 		return nil, errors.New("host environment variable for LLM api not set")
 	}
 	url := fmt.Sprintf("%s/api/chat/completions", host)
-	token := os.Getenv("OPEN_WEB_API_TOKEN")
+	token := os.Getenv("OPEN_WEB_UI_TOKEN")
 
 	switch name {
 	case LlamaModel:
