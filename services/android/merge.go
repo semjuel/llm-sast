@@ -1,23 +1,38 @@
-package services
+package android
 
 import (
 	"archive/zip"
 	"bytes"
 	"fmt"
+	"github.com/semjuel/llm-sast/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
 )
 
-func unzipAPK(apkBytes []byte, dest string) error {
+func UnzipAPK(src, dest string) error {
+	b, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+
+	ext := filepath.Ext(src)
+	if ext == ".zip" {
+		// Merge apk file inside the zip archive
+		b, err = mergeApks(src)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Create a new zip.Reader from the in-memory []byte
-	r, err := zip.NewReader(bytes.NewReader(apkBytes), int64(len(apkBytes)))
+	r, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
 	if err != nil {
 		return fmt.Errorf("failed to create zip reader: %w", err)
 	}
 
 	// Iterate through each file/dir in the archive
-	return unzip(r, dest)
+	return utils.Unzip(r, dest)
 }
 
 func mergeApks(src string) ([]byte, error) {
@@ -37,7 +52,7 @@ func mergeApks(src string) ([]byte, error) {
 	_ = os.MkdirAll(destZip, 0755)
 	defer os.RemoveAll(dest)
 
-	err = unzip(zipReader, destZip)
+	err = utils.Unzip(zipReader, destZip)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/semjuel/llm-sast/llms"
+	"github.com/semjuel/llm-sast/utils"
 	"os"
 )
 
@@ -30,8 +31,8 @@ func (i iosAnalyzer) Analyze(src string) (string, error) {
 		return "", err
 	}
 
-	dest := fmt.Sprintf("uploads/%s", hashString(src))
-	err = unzip(zipReader, dest)
+	dest := fmt.Sprintf("uploads/%s", utils.HashString(src))
+	err = utils.Unzip(zipReader, dest)
 	if err != nil {
 		return "", err
 	}

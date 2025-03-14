@@ -3,8 +3,8 @@ package services
 import (
 	"fmt"
 	"github.com/semjuel/llm-sast/llms"
-	"os"
-	"path/filepath"
+	"github.com/semjuel/llm-sast/services/android"
+	"github.com/semjuel/llm-sast/utils"
 )
 
 type androidAnalyzer struct {
@@ -18,25 +18,19 @@ func NewAndroidAnalyzer(llm llms.LLMModel) StaticAnalyzer {
 }
 
 func (a androidAnalyzer) Analyze(src string) (string, error) {
-	b, err := os.ReadFile(src)
+	dest := fmt.Sprintf("uploads/%s", utils.HashString(src))
+	err := android.UnzipAPK(src, dest)
 	if err != nil {
 		return "", err
 	}
 
-	ext := filepath.Ext(src)
-	if ext == ".zip" {
-		// Merge apk file inside the zip archive
-		b, err = mergeApks(src)
-		if err != nil {
-			return "", err
-		}
-	}
-
-	dest := fmt.Sprintf("uploads/%s", hashString(src))
-	err = unzipAPK(b, dest)
+	err = android.Apk2Java(src, dest)
 	if err != nil {
 		return "", err
 	}
+	// apk_2_java
+	// dex_2_smali
+	// code_an_dic
 
 	//TODO implement me
 	return "Android success", nil
