@@ -35,7 +35,7 @@ func NewLLMModel(
 	case LlamaModel:
 		return NewLLamaModel(url, token), nil
 	case GemmaModel:
-		return NewLLamaModel(url, token), nil
+		return NewGemmaModel(url, token), nil
 		//case ChatGPTO1Model:
 		//	return NewGPTModel(), nil
 		//case DeepSeekModel:
