@@ -13,7 +13,6 @@ RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y wget unzip \
     libstdc++6-i386-cross  && \
-    #lib32stdc++6 lib32z1 && \
     rm -rf /var/lib/apt/lists/*
 
 # Create directories for Android SDK and APKEditor
@@ -35,11 +34,18 @@ RUN yes | sdkmanager --licenses && \
 RUN ln -s $ANDROID_SDK_ROOT/build-tools/33.0.0 $ANDROID_SDK_ROOT/build-tools/latest
 
 # Download APKEditor.jar file and prepare bin file
-RUN  wget https://github.com/REAndroid/APKEditor/releases/download/V1.4.2/APKEditor-1.4.2.jar  \
+RUN wget https://github.com/REAndroid/APKEditor/releases/download/V1.4.2/APKEditor-1.4.2.jar  \
      -O $APKEDITOR_HOME/bin/apkeditor.jar && \
      echo '#!/bin/bash' > $APKEDITOR_HOME/bin/apkeditor && \
      echo 'java -jar /opt/APKEditor/bin/apkeditor.jar "$@"' >> $APKEDITOR_HOME/bin/apkeditor && \
      chmod +x $APKEDITOR_HOME/bin/apkeditor
+
+ARG JADX_VERSION=1.4.7
+RUN wget https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip -O /tmp/jadx.zip && \
+    unzip /tmp/jadx.zip -d /opt/jadx && \
+    ln -s /opt/jadx/bin/jadx /usr/local/bin/jadx && \
+    ln -s /opt/jadx/bin/jadx-gui /usr/local/bin/jadx-gui && \
+    rm /tmp/jadx.zip
 
 # Install dependencies and build tools (including a C compiler)
 RUN apt-get update && \
