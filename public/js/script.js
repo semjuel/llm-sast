@@ -1,25 +1,29 @@
 document.getElementById("uploadBtn").addEventListener("click", () => {
     const fileInput = document.getElementById("fileInput");
     const selectBox = document.getElementById("modelSelect");
-    const file = fileInput.files[0];
+    const uploadBtn = document.getElementById("uploadBtn");
+    const loader = document.getElementById("loader");
 
+    const file = fileInput.files[0];
     if (!file) {
         alert("Please select a file first");
         return;
     }
 
-    // Determine the selected model (e.g. "llama", "chatgpt-o1", "deepseek")
     const selectedModel = selectBox.value;
     if (!selectedModel) {
         alert("Please select a model");
         return;
     }
 
+    // Disable the button and show loader
+    uploadBtn.disabled = true;
+    loader.style.display = "block";
+
     // Prepare multipart/form-data
     const formData = new FormData();
     formData.append("file", file);
 
-    // Send to /upload/<selectedModel>, e.g. /upload/llama
     fetch(`http://localhost:8099/api/app/upload/${selectedModel}`, {
         method: "POST",
         body: formData,
@@ -29,12 +33,17 @@ document.getElementById("uploadBtn").addEventListener("click", () => {
             if (data.error) {
                 addMessage("system", data.error);
             } else {
-                addMessage("user", `File uploaded successfully: ${data.filename} \n SAST result ${data.result}`);
+                addMessage("user", `File uploaded successfully: ${data.filename}`);
             }
         })
         .catch((err) => {
             console.error(err);
             addMessage("system", "An error occurred while uploading the file.");
+        })
+        .finally(() => {
+            // Re-enable the button and hide loader
+            uploadBtn.disabled = false;
+            loader.style.display = "none";
         });
 });
 
