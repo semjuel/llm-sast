@@ -3,8 +3,10 @@ package services
 import (
 	"fmt"
 	"github.com/semjuel/llm-sast/llms"
+	"github.com/semjuel/llm-sast/models"
 	"github.com/semjuel/llm-sast/services/android"
 	"github.com/semjuel/llm-sast/utils"
+	"log"
 )
 
 type androidAnalyzer struct {
@@ -17,21 +19,53 @@ func NewAndroidAnalyzer(llm llms.LLMModel) StaticAnalyzer {
 	}
 }
 
-func (a androidAnalyzer) Analyze(src string) (string, error) {
+func (a androidAnalyzer) Analyze(src string) ([]models.URLFilteredResponse, error) {
+	var response []models.URLFilteredResponse
+
 	dest := fmt.Sprintf("uploads/%s", utils.HashString(src))
 	err := android.UnzipAPK(src, dest)
 	if err != nil {
-		return "", err
+		return response, err
 	}
 
 	err = android.Apk2Java(src, dest)
 	if err != nil {
-		return "", err
+		return response, err
 	}
 	// apk_2_java
 	// dex_2_smali
 	// code_an_dic
 
-	//TODO implement me
-	return "Android success", nil
+	// @TODO this handles only url for now
+	urlsData := android.ExtractFromSource(dest, []string{})
+	unique := uniqueByFilepath(urlsData)
+	for _, urlRow := range unique {
+		// Send request to the LLM and analyze the source
+		res, err := a.llm.AnalyzeUrl(urlRow)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		response = append(response, res)
+	}
+	log.Println(urlsData)
+
+	return response, nil
+}
+
+// @TODO move this function to another place
+// uniqueByFilepath returns a slice containing only the unique URLUsageFiltered entries based on Filepath.
+func uniqueByFilepath(usages []models.URLUsageFiltered) []models.URLUsageFiltered {
+	seen := make(map[string]bool)
+	var unique []models.URLUsageFiltered
+
+	for _, usage := range usages {
+		if !seen[usage.Filepath] {
+			seen[usage.Filepath] = true
+			unique = append(unique, usage)
+		}
+	}
+
+	return unique
 }

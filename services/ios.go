@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/semjuel/llm-sast/llms"
+	"github.com/semjuel/llm-sast/models"
 	"github.com/semjuel/llm-sast/utils"
 	"os"
 )
@@ -19,24 +20,26 @@ func NewIOSAnalyzer(llm llms.LLMModel) StaticAnalyzer {
 	}
 }
 
-func (i iosAnalyzer) Analyze(src string) (string, error) {
+func (i iosAnalyzer) Analyze(src string) ([]models.URLFilteredResponse, error) {
+	var response []models.URLFilteredResponse
+
 	b, err := os.ReadFile(src)
 	if err != nil {
-		return "", err
+		return response, err
 	}
 
 	reader := bytes.NewReader(b)
 	zipReader, err := zip.NewReader(reader, int64(len(b)))
 	if err != nil {
-		return "", err
+		return response, err
 	}
 
 	dest := fmt.Sprintf("uploads/%s", utils.HashString(src))
 	err = utils.Unzip(zipReader, dest)
 	if err != nil {
-		return "", err
+		return response, err
 	}
 
 	//TODO implement me
-	return "IOS success", nil
+	return response, nil
 }

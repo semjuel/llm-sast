@@ -3,10 +3,11 @@ package services
 import (
 	"errors"
 	"github.com/semjuel/llm-sast/llms"
+	"github.com/semjuel/llm-sast/models"
 )
 
 type StaticAnalyzer interface {
-	Analyze(dst string) (string, error)
+	Analyze(dst string) ([]models.URLFilteredResponse, error)
 }
 
 func NewStaticAnalyzer(ext string, llm llms.LLMModel) (StaticAnalyzer, error) {
