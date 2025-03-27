@@ -1,0 +1,105 @@
+You are an expert in Android security analysis. Your goal is to analyze the code provided after the keyword "CODE:" and extract all URLs found within it.
+
+Task Details:
+- URL Extraction: Identify every URL present in the provided code.
+- Request Detection: For each URL, determine if an HTTP request is being made:
+ - - Use "true" if a request is being sent,
+ - - "false" if no request is made,
+ - - "null" if it is uncertain.
+- Request Method: Specify the HTTP method used (e.g., GET, POST). If no request is made, leave this field as an empty string.
+- Request Body: Provide details about the request body if applicable (or leave empty if not).
+- Description: Include a brief explanation (maximum of three sentences) justifying your decisions regarding the request details.
+
+Output Format:
+Return your answer strictly as a JSON array of objects with the following structure. Do not include any extra text or commentary.
+[
+  {
+    "url": "http://example.com",
+    "is_request": true,
+    "request_method": "GET",
+    "request_body": "description of request body",
+    "description": "brief description"
+  }
+]
+
+CODE:
+package e;
+
+import java.util.Arrays;
+/* loaded from: file6/classes.dex */
+public final class r {
+
+    /* renamed from: e  reason: collision with root package name */
+    public static final r f856e = new r("api.dropboxapi.com", "content.dropboxapi.com", "www.dropbox.com", "notify.dropboxapi.com");
+
+    /* renamed from: f  reason: collision with root package name */
+    public static final h.d f857f = new p();
+
+    /* renamed from: a  reason: collision with root package name */
+    private final String f858a;
+    private final String b;
+    private final String c;
+    private final String d;
+
+    public r(String str, String str2, String str3, String str4) {
+        this.f858a = str;
+        this.b = str2;
+        this.c = str3;
+        this.d = str4;
+    }
+
+    /* JADX INFO: Access modifiers changed from: package-private */
+    public static String a(r rVar) {
+        String str = rVar.c;
+        if (str.startsWith("meta-")) {
+            String str2 = rVar.f858a;
+            if (str2.startsWith("api-")) {
+                String str3 = rVar.b;
+                if (str3.startsWith("api-content-")) {
+                    String str4 = rVar.d;
+                    if (str4.startsWith("api-notify-")) {
+                        String substring = str.substring(5);
+                        String substring2 = str2.substring(4);
+                        String substring3 = str3.substring(12);
+                        String substring4 = str4.substring(11);
+                        if (substring.equals(substring2) && substring.equals(substring3) && substring.equals(substring4)) {
+                            return substring;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public final boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof r) {
+            r rVar = (r) obj;
+            return rVar.f858a.equals(this.f858a) && rVar.b.equals(this.b) && rVar.c.equals(this.c) && rVar.d.equals(this.d);
+        }
+        return false;
+    }
+
+    public final String f() {
+        return this.f858a;
+    }
+
+    public final String g() {
+        return this.b;
+    }
+
+    public final String h() {
+        return this.d;
+    }
+
+    public final int hashCode() {
+        return Arrays.hashCode(new String[]{this.f858a, this.b, this.c, this.d});
+    }
+
+    public final String i() {
+        return this.c;
+    }
+}

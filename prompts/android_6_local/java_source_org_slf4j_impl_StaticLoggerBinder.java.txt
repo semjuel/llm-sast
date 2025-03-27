@@ -1,0 +1,55 @@
+You are an expert in Android security analysis. Your goal is to analyze the code provided and extract all URLs found within it.
+
+package org.slf4j.impl;
+
+import org.apache.log4j.e;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.helpers.Util;
+import org.slf4j.spi.LoggerFactoryBinder;
+/* loaded from: file6/classes.dex */
+public class StaticLoggerBinder implements LoggerFactoryBinder {
+    static /* synthetic */ Class class$org$slf4j$impl$Log4jLoggerFactory;
+    private static final String loggerFactoryClassStr;
+    private final ILoggerFactory loggerFactory = new Log4jLoggerFactory();
+    private static final StaticLoggerBinder SINGLETON = new StaticLoggerBinder();
+    public static String REQUESTED_API_VERSION = "1.5.11";
+
+    static {
+        Class cls = class$org$slf4j$impl$Log4jLoggerFactory;
+        if (cls == null) {
+            cls = class$("org.slf4j.impl.Log4jLoggerFactory");
+            class$org$slf4j$impl$Log4jLoggerFactory = cls;
+        }
+        loggerFactoryClassStr = cls.getName();
+    }
+
+    private StaticLoggerBinder() {
+        try {
+            e eVar = e.d;
+        } catch (NoSuchFieldError unused) {
+            Util.reportFailure("This version of SLF4J requires log4j version 1.2.12 or later. See also http://www.slf4j.org/codes.html#log4j_version");
+        }
+    }
+
+    static /* synthetic */ Class class$(String str) {
+        try {
+            return Class.forName(str);
+        } catch (ClassNotFoundException e2) {
+            throw new NoClassDefFoundError(e2.getMessage());
+        }
+    }
+
+    public static final StaticLoggerBinder getSingleton() {
+        return SINGLETON;
+    }
+
+    @Override // org.slf4j.spi.LoggerFactoryBinder
+    public ILoggerFactory getLoggerFactory() {
+        return this.loggerFactory;
+    }
+
+    @Override // org.slf4j.spi.LoggerFactoryBinder
+    public String getLoggerFactoryClassStr() {
+        return loggerFactoryClassStr;
+    }
+}

@@ -1,0 +1,167 @@
+Analyze the code below and find all URL's in it:
+
+package y1;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.CharacterData;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.helpers.DefaultHandler;
+/* loaded from: file6/classes.dex */
+public final class a {
+
+    /* renamed from: a  reason: collision with root package name */
+    private static Logger f1696a = LoggerFactory.getLogger(a.class);
+    private static DocumentBuilderFactory b;
+    private static TransformerFactory c;
+    public static final /* synthetic */ int d = 0;
+
+    static {
+        DocumentBuilderFactory newInstance = DocumentBuilderFactory.newInstance();
+        newInstance.setNamespaceAware(true);
+        newInstance.setIgnoringComments(true);
+        newInstance.setIgnoringElementContentWhitespace(true);
+        newInstance.setCoalescing(true);
+        try {
+            newInstance.setFeature("http://javax.xml.XMLConstants/feature/secure-processing", true);
+        } catch (AbstractMethodError | ParserConfigurationException e2) {
+            f1696a.warn("Secure XML processing is not supported", e2);
+        }
+        b = newInstance;
+        c = TransformerFactory.newInstance();
+    }
+
+    public static Document a() {
+        return b.newDocumentBuilder().newDocument();
+    }
+
+    public static Element b(Document document, String str, c cVar) {
+        if (cVar != null) {
+            String c3 = cVar.c();
+            c cVar2 = c.d;
+            if (!cVar2.equals(cVar) && !cVar2.b().equals(cVar.b())) {
+                StringBuffer stringBuffer = new StringBuffer(cVar.b());
+                stringBuffer.append(":");
+                stringBuffer.append(str);
+                str = stringBuffer.toString();
+            }
+            return document.createElementNS(c3, str);
+        }
+        return document.createElement(str);
+    }
+
+    public static Element c(Node node, String str, c cVar) {
+        if (node != null) {
+            NodeList childNodes = node.getChildNodes();
+            for (int i2 = 0; i2 < childNodes.getLength(); i2++) {
+                Node item = childNodes.item(i2);
+                if ((item.getNodeType() == 1) && h(item, str, cVar)) {
+                    return (Element) item;
+                }
+            }
+            return null;
+        }
+        return null;
+    }
+
+    public static String d(Element element, String str, c cVar) {
+        Element c3 = c(element, str, cVar);
+        if (c3 == null) {
+            return null;
+        }
+        return f(c3);
+    }
+
+    public static ArrayList e(Element element) {
+        ArrayList arrayList = new ArrayList();
+        NodeList childNodes = element.getChildNodes();
+        for (int i2 = 0; i2 < childNodes.getLength(); i2++) {
+            Node item = childNodes.item(i2);
+            boolean z2 = true;
+            if (!(item.getNodeType() == 1)) {
+                short nodeType = item.getNodeType();
+                if (!(nodeType == 3 || nodeType == 4)) {
+                    z2 = false;
+                }
+            }
+            if (z2) {
+                arrayList.add(item);
+            }
+        }
+        return arrayList;
+    }
+
+    public static String f(Element element) {
+        StringBuffer stringBuffer = new StringBuffer();
+        NodeList childNodes = element.getChildNodes();
+        for (int i2 = 0; i2 < childNodes.getLength(); i2++) {
+            Node item = childNodes.item(i2);
+            short nodeType = item.getNodeType();
+            if (nodeType == 3 || nodeType == 4) {
+                stringBuffer.append(((CharacterData) item).getData());
+            }
+        }
+        if (stringBuffer.length() == 0) {
+            return null;
+        }
+        return stringBuffer.toString();
+    }
+
+    /* JADX WARN: Removed duplicated region for block: B:23:0x0033 A[LOOP:0: B:3:0x0006->B:23:0x0033, LOOP_END] */
+    /* JADX WARN: Removed duplicated region for block: B:26:0x0032 A[SYNTHETIC] */
+    /*
+        Code decompiled incorrectly, please refer to instructions dump.
+    */
+    public static boolean g(Element element) {
+        boolean z2;
+        NodeList childNodes = element.getChildNodes();
+        for (int i2 = 0; i2 < childNodes.getLength(); i2++) {
+            Node item = childNodes.item(i2);
+            if (!(item.getNodeType() == 1)) {
+                short nodeType = item.getNodeType();
+                if (!(nodeType == 3 || nodeType == 4)) {
+                    z2 = false;
+                    if (!z2) {
+                        return true;
+                    }
+                }
+            }
+            z2 = true;
+            if (!z2) {
+            }
+        }
+        return false;
+    }
+
+    public static boolean h(Node node, String str, c cVar) {
+        if (node == null) {
+            return false;
+        }
+        if (cVar == null ? true : cVar.equals(c.a("", node.getNamespaceURI()))) {
+            return str == null ? true : str.equals(node.getLocalName());
+        }
+        return false;
+    }
+
+    public static Document i(InputStream inputStream) {
+        DocumentBuilder newDocumentBuilder = b.newDocumentBuilder();
+        newDocumentBuilder.setErrorHandler(new DefaultHandler());
+        return newDocumentBuilder.parse(inputStream);
+    }
+
+    public static void j(Document document, ByteArrayOutputStream byteArrayOutputStream) {
+        c.newTransformer().transform(new DOMSource(document), e.a(new StreamResult(byteArrayOutputStream)));
+    }
+}

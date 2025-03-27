@@ -1,0 +1,651 @@
+You are an expert in Android security analysis. Your goal is to analyze the code provided after the keyword "CODE:" and extract all URLs found within it.
+
+Task Details:
+- URL Extraction: Identify every URL present in the provided code.
+- Request Detection: For each URL, determine if an HTTP request is being made:
+ - - Use "true" if a request is being sent,
+ - - "false" if no request is made,
+ - - "null" if it is uncertain.
+- Request Method: Specify the HTTP method used (e.g., GET, POST). If no request is made, leave this field as an empty string.
+- Request Body: Provide details about the request body if applicable (or leave empty if not).
+- Description: Include a brief explanation (maximum of three sentences) justifying your decisions regarding the request details.
+
+Output Format:
+Return your answer strictly as a JSON array of objects with the following structure. Do not include any extra text or commentary.
+[
+  {
+    "url": "http://example.com",
+    "is_request": true,
+    "request_method": "GET",
+    "request_body": "description of request body",
+    "description": "brief description"
+  }
+]
+
+CODE:
+package g0;
+
+import android.content.ContentValues;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.Environment;
+import android.util.Log;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import com.kofax.Power.PDF.C0004R;
+import com.kofax.Power.PDF.PowerAPP;
+import com.kofax.Power.PDF.netdocs.fileshare.FileSharingService;
+import com.kofax.Power.PDF.r;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ServerSocketChannel;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Random;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
+import k1.i;
+import org.slf4j.Marker;
+import q1.g;
+import q1.k;
+/* loaded from: file6/classes.dex */
+public final class f {
+
+    /* renamed from: e  reason: collision with root package name */
+    private static final File f1048e = new File("/emmc");
+
+    /* renamed from: f  reason: collision with root package name */
+    private static final File f1049f = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
+
+    /* renamed from: a  reason: collision with root package name */
+    private int f1050a;
+    private ServerSocketChannel b;
+    private SharedPreferences c;
+    private SQLiteDatabase d;
+
+    public f(SharedPreferences sharedPreferences, SQLiteDatabase sQLiteDatabase, int i2) {
+        this.f1050a = i2;
+        ServerSocketChannel open = ServerSocketChannel.open();
+        this.b = open;
+        open.socket().setReuseAddress(true);
+        this.b.socket().bind(new InetSocketAddress(this.f1050a));
+        this.c = sharedPreferences;
+        this.d = sQLiteDatabase;
+        sQLiteDatabase.delete("cookies", "expiry < ?", new String[]{"" + (((int) System.currentTimeMillis()) / 1000)});
+    }
+
+    private static String a(File file) {
+        StringBuilder sb;
+        String str;
+        String name = file.getName();
+        if (name.indexOf("/") == -1 && name.indexOf("\\") == -1 && name.indexOf(":") == -1 && name.indexOf(Marker.ANY_MARKER) == -1 && name.indexOf("?") == -1 && name.indexOf("\"") == -1 && name.indexOf("<") == -1 && name.indexOf(">") == -1 && name.indexOf("|") == -1) {
+            sb = new StringBuilder("<tr><td class=\"ic\"><img src=\"");
+            sb.append(d(file));
+            sb.append(".GRObj\"></td><td class=\"n\"><a href=\"");
+            sb.append(b(file));
+            sb.append("\">");
+            sb.append(e(file.getName()));
+            str = "</a></td><td class=\"m\">";
+        } else {
+            sb = new StringBuilder("<tr><td class=\"ic\"><img src=\"");
+            sb.append(d(file));
+            sb.append(".GRObj\"></td><td class=\"n\">");
+            sb.append(e(file.getName()));
+            str = "</td><td class=\"m\">";
+        }
+        sb.append(str);
+        sb.append(h(file));
+        sb.append("</td><td class=\"s\">");
+        return androidx.appcompat.widget.c.n(sb, c(file), "</td></tr>");
+    }
+
+    private static String b(File file) {
+        int i2;
+        try {
+            String url = file.toURL().toString();
+            if (url.startsWith("file:///")) {
+                i2 = 7;
+            } else if (!url.startsWith("file:/")) {
+                return file.getAbsolutePath();
+            } else {
+                i2 = 5;
+            }
+            return url.substring(i2);
+        } catch (MalformedURLException unused) {
+            return "";
+        }
+    }
+
+    private static String c(File file) {
+        if (file.isDirectory()) {
+            return "";
+        }
+        long length = file.length();
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        double d = length;
+        if (d >= 1048576.0d) {
+            return PowerAPP.e().getString(C0004R.string.IDS_FILESIZE_UNIT_MB, decimalFormat.format(d / 1048576.0d));
+        }
+        return PowerAPP.e().getString(C0004R.string.IDS_FILESIZE_UNIT_KB, decimalFormat.format(d / 1024.0d));
+    }
+
+    private static String d(File file) {
+        return file.isDirectory() ? "folder.gif" : file.getName().toLowerCase().endsWith(".pdf") ? "pdf.gif" : "file.gif";
+    }
+
+    private static String e(String str) {
+        String str2;
+        StringBuilder sb = new StringBuilder();
+        if (str.length() > 28) {
+            sb.append(str.substring(0, 12));
+            sb.append("...");
+            str = str.substring(str.length() - 12, str.length());
+        }
+        sb.append(str);
+        String sb2 = sb.toString();
+        StringBuffer stringBuffer = new StringBuffer(sb2.length());
+        int length = sb2.length();
+        boolean z2 = false;
+        for (int i2 = 0; i2 < length; i2++) {
+            char charAt = sb2.charAt(i2);
+            if (charAt == ' ') {
+                if (z2) {
+                    str2 = "&nbsp;";
+                } else {
+                    stringBuffer.append(' ');
+                    z2 = true;
+                }
+            } else if (charAt == '\"') {
+                str2 = "&quot;";
+            } else if (charAt == '&') {
+                str2 = "&amp;";
+            } else if (charAt == '<') {
+                str2 = "&lt;";
+            } else if (charAt == '>') {
+                str2 = "&gt;";
+            } else if (charAt == '\n') {
+                str2 = "&lt;br/&gt;";
+            } else {
+                int i3 = 65535 & charAt;
+                if (i3 < 160) {
+                    stringBuffer.append(charAt);
+                } else {
+                    stringBuffer.append("&#");
+                    stringBuffer.append(new Integer(i3).toString());
+                    stringBuffer.append(';');
+                }
+                z2 = false;
+            }
+            stringBuffer.append(str2);
+            z2 = false;
+        }
+        return stringBuffer.toString();
+    }
+
+    public static String f() {
+        boolean x2 = r.x();
+        StringBuilder sb = new StringBuilder("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\r\n");
+        sb.append(x2 ? "<html dir=\"rtl\">\r\n" : "<html>\r\n");
+        sb.append("<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\r\n<title>");
+        sb.append(FileSharingService.c(C0004R.string.IDS_APP_DISPLAYNAME));
+        sb.append("</title>\r\n");
+        boolean x3 = r.x();
+        StringBuilder sb2 = new StringBuilder("<STYLE type=\"text/css\">\r\na, a:active { text-decoration: none; color: rgb(50,50,60);}\r\na:visited {color: rgb(102,54,42);}\r\na:hover, a:focus {text-decoration: underline; color: rgb(17,115,68);}\r\nbody {font-size:9pt;background-color: rgb(244,244,248); font-family: Arial,Calibri,Helvetica, sans-serif; }\r\nimg { border: 0; }\r\nTD {font-size:9pt;font-family: Arial,Calibri,Helvetica,  sans-serif;}\r\n.tdbottom{ border-bottom:1px solid rgb(224,224,224);}\r\n");
+        sb2.append(x3 ? ".subbutton{border:0;font-size:10pt;background:url(web_upload_rtl.jpg.GRObj) repeat-y right;cursor:pointer;padding:0 16px 0 8px;*padding:0 5px 0 0;color:#ffffff;background-color:RGB(82,82,90);height:22px;}\r\n" : ".subbutton{border:0;font-size:10pt;background:url(web_upload.jpg.GRObj) repeat-y left;cursor:pointer;padding:0 8px 0 16px;*padding:0 0 0 5px;color:#ffffff;background-color:RGB(82,82,90);height:22px;}\r\n");
+        sb2.append(".browsebutton{ border:0;font-size:10pt; cursor:pointer;padding:0 12px 0 12px;*padding:0;color:#ffffff;background-color:RGB(82,82,90);height:22px;width:120px}\r\n.upfile{border:0;width:160px;*width:160px;padding:2px 1px 2px 1px;color:#323232;background-color:RGB(255,255,255);height:22px;}\r\ndiv.list table { width: 860px; }\r\ndiv.list table td {font-size:10pt;height:48px;margin: 1px; padding: 1px; }\r\ndiv.list table td {padding-left: 18px;padding-right: 5px; padding-bottom: 3px; }\r\ndiv.list table td.ic { background:url(PowerReaderWeb/web_divide.jpg) repeat-y right;width: 42px; padding-left: 5px; }\r\ndiv.list table td.n {width: 492px; }\r\ndiv.list table td.m { color:rgb(53,49,48);width: 122px; }\r\ndiv.list table td.s, th.s  { color:rgb(53,49,48);text-align:right;width: 141px;}\r\ndiv.list { padding:0 20px 0 20px;background-color: white; }\r\n");
+        sb2.append(x3 ? "div.foot { text-align:left;font-size: 11; color: rgb(50,50,60); padding: 2px 2px 2px 0 }\r\n" : "div.foot { text-align:right;font-size: 11; color: rgb(50,50,60); padding: 2px 2px 2px 0 }\r\n");
+        sb2.append(".input{\r\nBORDER-RIGHT: 1px solid #B0B0B0;\r\nBORDER-TOP: 1px solid #B0B0B0;\r\nBORDER-LEFT: 1px solid #B0B0B0;\r\nBORDER-BOTTOM: 1px solid #B0B0B0;\r\n}\r\n.FormWithoutBackButton {\r\nposition:absolute;\r\n");
+        sb2.append(x3 ? "right:31px;\r\n" : "left:31px;\r\n");
+        sb2.append(x3 ? "*right:31px;\r\n" : "*left:31px;\r\n");
+        sb2.append("}\r\n.FormWithBackButton{\r\nposition:absolute;\r\n");
+        sb2.append(x3 ? "right:130px;\n" : "left:130px;\n");
+        sb2.append(x3 ? "*right:135px;\r\n" : "*left:135px;\r\n");
+        sb2.append("}\r\n</STYLE>\r\n");
+        sb.append(sb2.toString());
+        sb.append("<script type=\"text/javascript\">\r\nfunction file_change()\r\n{\r\n\t\tvar fn = document.getElementById(\"file\").value;\r\n\t\tvar ileft = fn.lastIndexOf(\"\\\\\");\r\n\t\tif(ileft != -1)\r\n\t\t{\r\n \t\tfn = fn.substr(ileft+1);\r\n\t\t}\r\n    document.getElementById(\"fileInput\").value = fn;\r\n}\r\nfunction checkFilename()\r\n{\r\n    filename=document.getElementById(\"file\").value;\r\n    if (filename==\"\")\r\n    {\r\n        alert(\"");
+        sb.append(FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_ERR_NOT_SELECT_FILE));
+        sb.append("\");\r\n        return false;\r\n    }\r\n    return true;\r\n}\r\n</script>\r\n</head>\r\n<body>\r\n");
+        return sb.toString();
+    }
+
+    private static String g() {
+        return "<form method=\"POST\" action=\"/login\" enctype=\"application/x-www-form-urlencoded\">" + FileSharingService.c(C0004R.string.IDS_NETWORK_SERVER_WEBDAV_USERNAME) + "<br /><input type=\"text\"  style=\"width:160px\" name=\"username\"/><br />" + FileSharingService.c(C0004R.string.IDS_PASSWORD_HINT) + "<br /><span style=\"padding-right:2px\"><input type=\"password\" style=\"width:160px\" name=\"password\"/></sapn> <input type=\"submit\" value=\" " + FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_LOGIN) + " \"/></form>";
+    }
+
+    private static String h(File file) {
+        Date date = new Date(file.lastModified());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        simpleDateFormat.setTimeZone(TimeZone.getDefault());
+        return simpleDateFormat.format(date);
+    }
+
+    public static String i(String str) {
+        String v2 = v(str);
+        return "<script language=\"javascript\">function showUploadErrMsg(){try{alert('" + String.format(FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_UPLOAD_ERR), v2) + "');var thisURL = document.URL;location.href=thisURL;}catch(e) {var thisURL = document.URL;location.href=thisURL; }}showUploadErrMsg();</script>";
+    }
+
+    private static void j(m1.b bVar, k kVar) {
+        FileSharingService fileSharingService = FileSharingService.f561f;
+        String n2 = fileSharingService != null ? androidx.appcompat.widget.c.n(new StringBuilder(), fileSharingService.getApplicationInfo().dataDir, "/resources/web/") : null;
+        String c = kVar.c();
+        String q2 = androidx.appcompat.widget.c.q(n2, -1 != c.lastIndexOf(47) ? c.substring(c.lastIndexOf(47), c.length() - 6) : "file.png");
+        if (q2 != null) {
+            q(bVar, new File(q2));
+        }
+    }
+
+    private static void k(m1.b bVar, k kVar) {
+        String decode = Uri.decode(kVar.c());
+        if (decode.compareTo("/") == 0) {
+            u(bVar);
+        } else if (!decode.startsWith(f1048e.getPath()) && !decode.startsWith(f1049f.getPath())) {
+            t(bVar);
+        } else {
+            File file = new File(decode);
+            if (!file.exists()) {
+                t(bVar);
+            } else if (file.isDirectory()) {
+                r(bVar, file, null);
+            } else {
+                q(bVar, file);
+            }
+        }
+    }
+
+    private void l(m1.b bVar, k1.f fVar) {
+        g gVar;
+        String string = this.c.getString("Username", "");
+        String string2 = this.c.getString("Password", "");
+        q1.e eVar = new q1.e(fVar.b());
+        bVar.h(eVar);
+        int parseInt = Integer.parseInt(fVar.d("Content-Length").getValue());
+        StringBuffer stringBuffer = new StringBuffer();
+        InputStreamReader inputStreamReader = new InputStreamReader(eVar.j().a());
+        for (int i2 = 0; i2 < parseInt; i2++) {
+            stringBuffer.append((char) inputStreamReader.read());
+        }
+        int indexOf = stringBuffer.indexOf("username=");
+        int indexOf2 = stringBuffer.indexOf("password=");
+        String substring = indexOf < indexOf2 ? stringBuffer.substring(indexOf + 9, indexOf2 - 1) : "";
+        String substring2 = indexOf2 > 0 ? stringBuffer.substring(indexOf2 + 9) : "";
+        if (substring.equals(string) && substring2.equals(string2)) {
+            gVar = new g(new i(1, 1), 302, "Found");
+            gVar.g("Location", "/");
+            StringBuilder sb = new StringBuilder("id=");
+            String l2 = Long.toString(Math.abs(new Random().nextLong()), 36);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("name", "id");
+            contentValues.put("value", l2);
+            contentValues.put("expiry", Integer.valueOf((((int) System.currentTimeMillis()) / 1000) + 3600));
+            this.d.insert("cookies", "name", contentValues);
+            sb.append(l2);
+            gVar.g("Set-Cookie", sb.toString());
+            gVar.k(new l1.d(f() + "<script type=\"text/javascript\">location.reload()</script></DIV></DIV></BODY></HTML>", null));
+        } else {
+            gVar = new g(new i(1, 1), 401, "Unauthorized");
+            StringBuilder sb2 = new StringBuilder();
+            sb2.append(f());
+            sb2.append("<p>" + FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_LOGIN_FAILED) + "</p>");
+            sb2.append(g());
+            sb2.append("</DIV></DIV></BODY></HTML>");
+            gVar.k(new l1.d(sb2.toString(), "UTF-8"));
+        }
+        bVar.k(gVar);
+        bVar.j(gVar);
+    }
+
+    /* JADX WARN: Removed duplicated region for block: B:37:0x00e2  */
+    /* JADX WARN: Removed duplicated region for block: B:38:0x0109  */
+    /* JADX WARN: Removed duplicated region for block: B:45:0x012c  */
+    /* JADX WARN: Removed duplicated region for block: B:64:? A[RETURN, SYNTHETIC] */
+    /*
+        Code decompiled incorrectly, please refer to instructions dump.
+    */
+    private static void n(m1.b bVar, k1.f fVar, k kVar) {
+        URISyntaxException e2;
+        String str;
+        String i2;
+        String decode = Uri.decode(kVar.c());
+        if (decode.compareTo("/") == 0) {
+            u(bVar);
+            return;
+        }
+        File file = new File(decode);
+        if (!file.exists()) {
+            t(bVar);
+        } else if (!file.isDirectory()) {
+        } else {
+            String value = fVar.d("Content-Type").getValue();
+            String substring = value.substring(value.indexOf("boundary=") + 9);
+            q1.e eVar = new q1.e(fVar.b());
+            bVar.h(eVar);
+            c1.c cVar = new c1.c(eVar.j().a(), substring.getBytes());
+            StringTokenizer stringTokenizer = new StringTokenizer(cVar.o(), "\r\n", false);
+            String str2 = null;
+            String str3 = null;
+            while (stringTokenizer.hasMoreTokens() && str3 == null) {
+                String trim = stringTokenizer.nextToken().trim();
+                if (trim.contains("filename=\"")) {
+                    int indexOf = trim.indexOf("filename=\"") + 10;
+                    int lastIndexOf = trim.lastIndexOf("\"");
+                    str3 = indexOf < lastIndexOf ? trim.substring(indexOf, lastIndexOf) : trim.substring(indexOf);
+                }
+            }
+            int lastIndexOf2 = str3.lastIndexOf(92);
+            if (lastIndexOf2 > 0) {
+                str3 = str3.substring(lastIndexOf2 + 1);
+            }
+            try {
+                str = new URL(androidx.appcompat.widget.c.l("http://127.0.0.1/", str3)).toURI().getPath();
+                try {
+                    if (str.startsWith("/")) {
+                        str = str.substring(1);
+                    }
+                } catch (URISyntaxException e3) {
+                    e2 = e3;
+                    e2.printStackTrace();
+                    if (file.getPath().getBytes().length + str3.getBytes().length >= 180) {
+                    }
+                    r(bVar, file, i2);
+                    if (str2 != null) {
+                    }
+                }
+            } catch (URISyntaxException e4) {
+                e2 = e4;
+                str = str3;
+            }
+            if (file.getPath().getBytes().length + str3.getBytes().length >= 180) {
+                try {
+                    FileOutputStream fileOutputStream = new FileOutputStream(new File(file.getPath(), str3));
+                    cVar.m(fileOutputStream);
+                    fileOutputStream.close();
+                    str2 = str;
+                } catch (IOException e5) {
+                    e5.toString();
+                    i2 = i(str);
+                }
+                if (str2 != null) {
+                    String v2 = v(str2);
+                    r(bVar, file, "<script language=\"javascript\">function showUploadSuccessMsg(){try{alert('" + String.format(FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_UPLOAD_SUCCESS), v2) + "');var thisURL = document.URL;location.href=thisURL;}catch(e) {var thisURL = document.URL;location.href=thisURL; }}showUploadSuccessMsg();</script>");
+                    return;
+                }
+                return;
+            }
+            String v3 = v(str);
+            i2 = "<script language=\"javascript\">function showUploadErrMsg(){try{alert('" + String.format(FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_UPLOAD_NAMELONGER), v3) + "');var thisURL = document.URL;location.href=thisURL;}catch(e) {var thisURL = document.URL;location.href=thisURL; }}showUploadErrMsg();</script>";
+            r(bVar, file, i2);
+            if (str2 != null) {
+            }
+        }
+    }
+
+    private boolean o(String str) {
+        Cursor query = this.d.query("cookies", new String[]{"value"}, "name = ? and value = ? and expiry > ?", new String[]{"id", str, "" + (((int) System.currentTimeMillis()) / 1000)}, null, null, null);
+        boolean z2 = query.getCount() > 0;
+        query.close();
+        return z2;
+    }
+
+    private static void q(m1.b bVar, File file) {
+        URL url;
+        g gVar = new g(new i(1, 1), ItemTouchHelper.Callback.DEFAULT_DRAG_ANIMATION_DURATION, "OK");
+        long length = file.length();
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+            gVar.g("Content-Type", file.getName().toLowerCase().endsWith(".pdf") ? "application/pdf" : "application/octet-stream");
+            gVar.g("Content-Length", "" + length);
+            gVar.k(new l1.b(fileInputStream, length));
+        } catch (FileNotFoundException e2) {
+            e2.printStackTrace();
+            String path = file.getPath();
+            try {
+                url = new URL("http://127.0.0.1/" + path);
+            } catch (MalformedURLException e3) {
+                e3.printStackTrace();
+                url = null;
+            }
+            try {
+                path = url.toURI().getPath();
+                if (path.startsWith("/")) {
+                    path = path.substring(1);
+                }
+            } catch (URISyntaxException e4) {
+                e4.printStackTrace();
+            }
+            try {
+                r(bVar, file.getParentFile(), i(path));
+            } catch (UnsupportedEncodingException | IOException | k1.d e5) {
+                e5.printStackTrace();
+            }
+        }
+        bVar.k(gVar);
+        bVar.j(gVar);
+    }
+
+    private static void r(m1.b bVar, File file, String str) {
+        String str2;
+        File[] fileArr;
+        g gVar = new g(new i(1, 1), ItemTouchHelper.Callback.DEFAULT_DRAG_ANIMATION_DURATION, "OK");
+        StringBuilder sb = new StringBuilder();
+        sb.append(f());
+        if (str != null) {
+            sb.append(str);
+        }
+        String b = b((file.equals(f1048e) || file.equals(f1049f)) ? new File("/") : file.getParentFile());
+        boolean x2 = r.x();
+        StringBuilder sb2 = new StringBuilder("<DIV style=\"text-align:center\">\r\n<DIV style=\"width: 900px;margin:auto;\">\r\n<TABLE style=\"position:absolute;background-color:RGB(62,62,71);width:900px\" height=\"90\" border=\"0\" cellSpacing=\"0\" cellPadding=\"0\">\r\n<TR>\r\n<td rowspan=\"2\" width=\"80\"><A href=\"");
+        sb2.append(b);
+        sb2.append(x2 ? "\"><IMG src=\"back_rtl.jpg" : "\"><IMG src=\"back.jpg");
+        sb2.append(".GRObj\"></A></td>\r\n<td width=\"31\" rowspan=\"2\"></td>\r\n<TD style=\"font-family:Helvetica Neue LT Std - 77 Bold Condensed;padding:10px 0 5px 0;font-size:26px;color:#ffffff;font-weight: bold;\">");
+        sb2.append(FileSharingService.c(C0004R.string.IDS_PDF_FILES_TAB_HEADER));
+        sb2.append("</TD>\r\n</TR>\r\n<tr>\r\n<td valign=\"top\" >\r\n<form id=\"form1\" enctype=\"multipart/form-data\" method=\"post\" name=\"form1\" onsubmit=\"return checkFilename()\" action=\"\">\r\n<span class=\"FormWithBackButton\"><INPUT size=\"25\" id=\"file\" name=\"file\" type=\"file\" onchange=\"file_change()\" style=\"vertical-align:middle;filter:alpha(opacity=0);opacity:0;cursor:pointer;width:282px\"></span>\r\n    <input type=\"text\" class=\"upfile\" name=\"fileInput\" id=\"fileInput\"/>\r\n    <INPUT type=\"button\" class=\"browsebutton\" value=\"");
+        sb2.append(FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_FIEL_BROWSER));
+        sb2.append("\">\r\n    <span style=\"padding-left:6px\">\r\n    <INPUT type=\"submit\" id=\"button\" name=\"button\" class=\"subbutton\" value=\" ");
+        sb2.append(FileSharingService.c(C0004R.string.IDS_NETWORK_MENU_UPLOAD));
+        sb2.append("\">\r\n    </span>\r\n</form>\r\n</td>\r\n</tr>\r\n</TABLE>\r\n<div style=\"padding-top:89px;*padding-top:80px;font-size:8px;height:1px;\"></div>\r\n<div style=\"font-size:8px;height:8px;background-color:rgb(255,255,255)\"></div>\r\n<DIV class=\"list\">\r\n<TABLE cellSpacing=\"0\" cellPadding=\"0\" border=\"0\">\r\n");
+        sb.append(sb2.toString());
+        if (file.exists() && file.isDirectory() && file.canRead()) {
+            try {
+                fileArr = file.listFiles(new d());
+            } catch (SecurityException unused) {
+                fileArr = null;
+            }
+            if (fileArr != null) {
+                Arrays.sort(fileArr, new e());
+                StringBuilder sb3 = new StringBuilder();
+                for (File file2 : fileArr) {
+                    sb3.append(a(file2));
+                }
+                str2 = sb3.toString();
+                sb.append(str2);
+                sb.append("</TABLE></DIV><div style=\"font-size:28px;height:28px;background-color:rgb(255,255,255)\"></div><DIV class=\"foot\">" + FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_BROWSERACCESS) + "</DIV>");
+                sb.append("</DIV></DIV></BODY></HTML>");
+                gVar.k(new l1.d(sb.toString(), "UTF-8"));
+                bVar.k(gVar);
+                bVar.j(gVar);
+            }
+        }
+        str2 = "";
+        sb.append(str2);
+        sb.append("</TABLE></DIV><div style=\"font-size:28px;height:28px;background-color:rgb(255,255,255)\"></div><DIV class=\"foot\">" + FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_BROWSERACCESS) + "</DIV>");
+        sb.append("</DIV></DIV></BODY></HTML>");
+        gVar.k(new l1.d(sb.toString(), "UTF-8"));
+        bVar.k(gVar);
+        bVar.j(gVar);
+    }
+
+    private static void s(m1.b bVar) {
+        g gVar = new g(new i(1, 1), ItemTouchHelper.Callback.DEFAULT_DRAG_ANIMATION_DURATION, "OK");
+        StringBuilder sb = new StringBuilder();
+        sb.append(f());
+        sb.append("<p>" + FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_PERMISSION_REQUIRED) + "</p>");
+        sb.append(g());
+        sb.append("</DIV></DIV></BODY></HTML>");
+        gVar.k(new l1.d(sb.toString(), "UTF-8"));
+        bVar.k(gVar);
+        bVar.j(gVar);
+    }
+
+    private static void t(m1.b bVar) {
+        g gVar = new g(new i(1, 1), 404, "NOT FOUND");
+        gVar.k(new l1.d("NOT FOUND", null));
+        bVar.k(gVar);
+        bVar.j(gVar);
+    }
+
+    private static void u(m1.b bVar) {
+        StringBuilder sb;
+        String str;
+        g gVar = new g(new i(1, 1), ItemTouchHelper.Callback.DEFAULT_DRAG_ANIMATION_DURATION, "OK");
+        StringBuilder sb2 = new StringBuilder();
+        sb2.append(f());
+        sb2.append("<DIV style=\"text-align:center\"><DIV style=\"width: 900px;margin:auto;\"><TABLE style=\"background-color:RGB(62,62,71);width:100%\" height=\"90\" border=\"0\" cellSpacing=\"0\" cellPadding=\"0\"><TR><td width=\"31\" rowspan=\"2\"></td><TD style=\"font-family:Helvetica Neue LT Std - 77 Bold Condensed;padding:10px 0 5px 0;font-size:26px;color:#ffffff;font-weight: bold;\">" + FileSharingService.c(C0004R.string.IDS_PDF_FILES_TAB_HEADER) + "</TD></TR></TABLE><div style=\"font-size:8px;height:8px;background-color:rgb(255,255,255)\"></div><DIV class=\"list\"><TABLE cellSpacing=\"0\" cellPadding=\"0\" border=\"0\">");
+        File file = f1048e;
+        String str2 = "";
+        if (file.exists() && file.isDirectory()) {
+            str2 = "" + a(file);
+        }
+        if (Environment.getExternalStorageState().equals("mounted")) {
+            StringBuilder sb3 = new StringBuilder();
+            sb3.append(str2);
+            File file2 = f1049f;
+            String name = file2.getName();
+            if (name.indexOf("/") == -1 && name.indexOf("\\") == -1 && name.indexOf(":") == -1 && name.indexOf(Marker.ANY_MARKER) == -1 && name.indexOf("?") == -1 && name.indexOf("\"") == -1 && name.indexOf("<") == -1 && name.indexOf(">") == -1 && name.indexOf("|") == -1) {
+                sb = new StringBuilder("<tr><td class=\"ic\"><img src=\"");
+                sb.append(d(file2));
+                sb.append(".GRObj\"></td><td class=\"n\"><a href=\"");
+                sb.append(b(file2));
+                str = "\">Root</a></td><td class=\"m\">";
+            } else {
+                sb = new StringBuilder("<tr><td class=\"ic\"><img src=\"");
+                sb.append(d(file2));
+                sb.append(".GRObj\"></td><td class=\"n\">");
+                sb.append(e(file2.getName()));
+                str = "</td><td class=\"m\">";
+            }
+            sb.append(str);
+            sb.append(h(file2));
+            sb.append("</td><td class=\"s\">");
+            sb.append(c(file2));
+            sb.append("</td></tr>");
+            sb3.append(sb.toString());
+            str2 = sb3.toString();
+        }
+        sb2.append(str2);
+        sb2.append("</TABLE></DIV><div style=\"font-size:28px;height:28px;background-color:rgb(255,255,255)\"></div><DIV class=\"foot\">" + FileSharingService.c(C0004R.string.IDS_NETWORK_WEB_BROWSERACCESS) + "</DIV>");
+        sb2.append("</DIV></DIV></BODY></HTML>");
+        gVar.k(new l1.d(sb2.toString(), "UTF-8"));
+        bVar.k(gVar);
+        bVar.j(gVar);
+    }
+
+    private static String v(String str) {
+        int i2 = 0;
+        if (str.length() > 16) {
+            String substring = str.substring(str.lastIndexOf("."));
+            int length = 16 - substring.length();
+            if (length < 10) {
+                length = 10;
+            }
+            str = str.substring(0, length) + ".." + substring;
+        }
+        String str2 = "";
+        while (i2 < str.length()) {
+            int i3 = i2 + 1;
+            String substring2 = str.substring(i2, i3);
+            if (substring2.equals("'")) {
+                substring2 = "\\'";
+            }
+            str2 = androidx.appcompat.widget.c.q(str2, substring2);
+            i2 = i3;
+        }
+        return str2;
+    }
+
+    public final void m(Socket socket) {
+        try {
+            m1.b bVar = new m1.b();
+            bVar.c(socket, new r1.b());
+            try {
+                k1.f i2 = bVar.i();
+                k b = ((q1.f) i2).b();
+                b.getClass();
+                boolean z2 = false;
+                if (Boolean.valueOf(this.c.getBoolean("RequireLogin", false)).booleanValue()) {
+                    k1.b d = ((q1.a) i2).d("Cookie");
+                    if (d != null) {
+                        String value = d.getValue();
+                        z2 = o(value.substring(value.indexOf("id=") + 3));
+                    }
+                } else {
+                    z2 = true;
+                }
+                if (z2) {
+                    if (b.a().equals("GET")) {
+                        k1.b d2 = ((q1.a) i2).d("zeonreader");
+                        if (d2 != null && d2.getValue().equalsIgnoreCase("true")) {
+                            t(bVar);
+                            bVar.e();
+                            bVar.d();
+                            return;
+                        } else if (b.c().endsWith(".GRObj")) {
+                            j(bVar, b);
+                        } else {
+                            k(bVar, b);
+                        }
+                    } else if (b.a().equals("POST")) {
+                        n(bVar, i2, b);
+                    }
+                } else if (b.c().equals("/login")) {
+                    l(bVar, i2);
+                } else {
+                    s(bVar);
+                }
+            } catch (IOException e2) {
+                e = e2;
+                e.toString();
+                bVar.e();
+                bVar.d();
+            } catch (k1.d e3) {
+                e = e3;
+                e.toString();
+                bVar.e();
+                bVar.d();
+            }
+            bVar.e();
+            bVar.d();
+        } catch (Exception unused) {
+        }
+    }
+
+    public final void p() {
+        while (true) {
+            try {
+                Socket socket = this.b.accept().socket();
+                Log.d("FileSharer WebServer", "Socket accepted");
+                new c(this, socket).start();
+            } catch (ClosedByInterruptException unused) {
+                this.d.close();
+                return;
+            } catch (IOException e2) {
+                this.d.close();
+                e2.toString();
+                return;
+            }
+        }
+    }
+}
