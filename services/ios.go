@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"github.com/semjuel/llm-sast/llms"
 	"github.com/semjuel/llm-sast/models"
+	"github.com/semjuel/llm-sast/services/ios"
 	"github.com/semjuel/llm-sast/utils"
+	"log"
 	"os"
 )
 
@@ -40,6 +42,24 @@ func (i iosAnalyzer) Analyze(src string) ([]models.URLFilteredResponse, error) {
 		return response, err
 	}
 
-	//TODO implement me
+	urlsData := ios.ExtractFromSource(dest, []string{})
+	unique := uniqueByFilepath(urlsData)
+	for _, urlRow := range unique {
+		log.Println(urlRow.Filepath)
+		log.Println("---START sending requests---")
+		// Send request to the LLM and analyze the source
+		res, err := i.llm.AnalyzeUrl(urlRow)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		log.Println("---END sending requests---")
+		response = append(response, res)
+	}
+
+	log.Println("Responses")
+	log.Println(response)
+
 	return response, nil
 }

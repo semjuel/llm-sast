@@ -1,0 +1,25 @@
+You are an expert in Android security analysis. Your goal is to analyze the code provided after the keyword "CODE:" and extract all URLs found within it.
+
+Task Details:
+- URL Extraction: Identify every URL present in the provided code.
+- Request Detection: For each URL, determine if an HTTP request is being made:
+ - - Use "true" if a request is being sent,
+ - - "false" if no request is made,
+ - - "nil" if it is uncertain.
+- Request Method: Specify the HTTP method used (e.g., GET, POST). If no request is made, leave this field as an empty string.
+- Request Body: Provide details about the request body if applicable (or leave empty if not).
+- Description: Include a brief explanation (maximum of three sentences) justifying your decisions regarding the request details.
+
+Output Format:
+Return your answer strictly as a JSON array of objects with the following structure. Do not include any extra text or commentary.
+[
+  {
+    "url": "http://example.com",
+    "is_request": true,
+    "request_method": "GET",
+    "request_body": "description of request body",
+    "description": "brief description"
+  }
+]
+
+CODE:

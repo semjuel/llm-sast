@@ -1,4 +1,4 @@
-package android
+package ios
 
 import (
 	"bufio"
@@ -12,9 +12,7 @@ import (
 
 // Regular Expressions
 var urlRegex = regexp.MustCompile(`((?:https?://|s?ftps?://|file://|javascript:|data:|www\d{0,3}[.])[\w().=/;,#:@?&~*+!$%{}-]+)`)
-var emailRegex = regexp.MustCompile(`[\w+.-]{1,20}@[\w-]{1,20}\.[\w]{2,10}`)
 
-// ExtractFromSource - function to extract data from Java/Kotlin files
 func ExtractFromSource(srcDir string, skipPaths []string) []models.URLUsageFiltered {
 	msg := "Extracting URLs from Source Code!!!"
 	log.Println(msg)
@@ -34,8 +32,8 @@ func ExtractFromSource(srcDir string, skipPaths []string) []models.URLUsageFilte
 		}
 
 		// Process only .java and .kt files
-		if strings.HasSuffix(info.Name(), ".java") ||
-			strings.HasSuffix(info.Name(), ".kt") {
+		if strings.HasSuffix(info.Name(), ".m") ||
+			strings.HasSuffix(info.Name(), ".swift") {
 			fileContent, err := readFileContent(path)
 			if err != nil {
 				log.Println(path, err.Error())
@@ -82,12 +80,7 @@ func extractEmailsAndURLs(content, relativePath string) ([]string, []string) {
 	}
 
 	// Extract Emails
-	emailMatches := emailRegex.FindAllString(strings.ToLower(content), -1)
-	for _, email := range emailMatches {
-		if !strings.HasPrefix(email, "//") { // Ignore commented-out emails
-			emails = append(emails, email)
-		}
-	}
+	// @TODO implement this
 
 	return urls, emails
 }

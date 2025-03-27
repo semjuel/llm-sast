@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	PromptModel    = "prompt"
 	LlamaModel     = "llama"
 	GemmaModel     = "gemma"
 	ChatGPTO1Model = "chatgpto1"
@@ -32,6 +33,8 @@ func NewLLMModel(
 	token := os.Getenv("OPEN_WEB_UI_TOKEN")
 
 	switch name {
+	case PromptModel:
+		return NewPromptModel(), nil
 	case LlamaModel:
 		return NewLLamaModel(url, token), nil
 	case GemmaModel:
